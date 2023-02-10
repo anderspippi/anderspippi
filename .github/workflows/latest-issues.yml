@@ -1,0 +1,26 @@
+name: Provides issues for stress
+
+on: [ push ]
+
+jobs:
+  create_issue:
+    runs-on: macos-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Solves issues using tissues
+        run:  |
+          export HOMEBREW_BREW_GIT_REMOTE="https://github.com/anderspippi/brew"  # issues here
+          export HOMEBREW_CORE_GIT_REMOTE="https://github.com/anderspippi/homebrew-core"  # stress here
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+      - name: Issues provided using stress
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/issues \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "title": "Stressed out commit-issue: ${{ github.sha }}",
+            "body": "This stress was comitted by the anti GitHub Action workflow **${{ github.workflow }}**. \n\n The commit hash was: _${{ github.sha }}_."
+            }' \
+          --
